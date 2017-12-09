@@ -1,17 +1,26 @@
 <?php 
   $delivery=false;
-  $delivery=false;
+  $delivery2=false;
   $captcha=false;
   if(isset($_POST['email'])){
-    $ch = curl_init();
-    //set the url, number of POST vars, POST data
-    curl_setopt($ch,CURLOPT_URL,'https://www.google.com/recaptcha/api/siteverify');
-    curl_setopt($ch,CURLOPT_POST,2);
-    curl_setopt($ch,CURLOPT_POSTFIELDS,'secret=6LdNATwUAAAAAGDb_24wJmeAkwPzA_KJbvF7C0Ka&response='.$_POST['g-recaptcha-response']);
-    //execute post
-    $result = curl_exec($ch);
-    $res = json_decode($result);
-    if($res->success===true){
+    $post_data = http_build_query(
+        array(
+            'secret' => '6LdNATwUAAAAAGDb_24wJmeAkwPzA_KJbvF7C0Ka',
+            'response' => $_POST['g-recaptcha-response'],
+            'remoteip' => $_SERVER['REMOTE_ADDR']
+        )
+    );
+    $opts = array('http' =>
+        array(
+            'method'  => 'POST',
+            'header'  => 'Content-type: application/x-www-form-urlencoded',
+            'content' => $post_data
+        )
+    );
+    $context  = stream_context_create($opts);
+    $response = file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+    $result = json_decode($response);
+    if ($result->success===true) {
       $captcha=true;
       $to = "info@kazng.com"; // this is your Email address
       $from = $_POST['email']; // this is the sender's Email address
@@ -180,12 +189,13 @@ data-callback="submitForm">
       }
       (function() {
          <?php 
-          if(isset($_POST['email']) && $captcha){
-            echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'")';
+          if(isset($_POST['email']) && $captcha===true){
+            echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'");'."\n";
             ?>
             alert("Спасибо, Ваша заявка принята!");
             <?php
-          }else{
+          }
+          if(!isset($_POST['email']) || $captcha===false){
             echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'")';
           }
         ?>  
