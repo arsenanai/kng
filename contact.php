@@ -1,17 +1,34 @@
 <?php 
-if(isset($_POST['submit'])){
-    $to = "arsenanai@gmail.com"; // this is your Email address
-    $from = $_POST['email']; // this is the sender's Email address
-    $first_name = $_POST['name'];
-    $subject = "Обратная связь с сайта";
-    $subject2= "Спасибо за обращение";
-    $message = $first_name . " " . " оставил заявку:" . "\n\n" . $_POST['message'];
-    $message2 = "Спасибо за Вашу заявку, " . $first_name . ", мы ответим в ближайщее время\n\n";
-    $headers = "От:" . $from;
-    $headers2 = "От:" . $to;
-    mail($to,$subject,$message,$headers);
-    mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender
+  $delivery=false;
+  $delivery=false;
+  $captcha=false;
+  if(isset($_POST['email'])){
+    $ch = curl_init();
+    //set the url, number of POST vars, POST data
+    curl_setopt($ch,CURLOPT_URL,'https://www.google.com/recaptcha/api/siteverify');
+    curl_setopt($ch,CURLOPT_POST,2);
+    curl_setopt($ch,CURLOPT_POSTFIELDS,'secret=6LdNATwUAAAAAGDb_24wJmeAkwPzA_KJbvF7C0Ka&response='.$_POST['g-recaptcha-response']);
+    //execute post
+    $result = curl_exec($ch);
+    $res = json_decode($result);
+    if($res->success===true){
+      $captcha=true;
+      $to = "info@kazng.com"; // this is your Email address
+      $from = $_POST['email']; // this is the sender's Email address
+      $first_name = $_POST['name'];
+      $phone = $_POST['phone'];
+      $subject = "Обратная связь с сайта";
+      $subject2= "Спасибо за обращение";
+      $message = $first_name . ", тел: " .$phone. ", оставил заявку:" . "\n\n" . $_POST['message'];
+      $message2 = "Спасибо за Вашу заявку, " . $first_name . ", мы ответим Вам в ближайщее время\n\n";
+      $headers = 'From:' . $from . "\r\n" .
+      'Reply-To: ' . $from . "\r\n" .
+      'X-Mailer: PHP/' . phpversion();
+      $headers2 = "От:" . $to;
+      $delivery = mail($to,$subject,$message,$headers);
+      $delivery2= mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender
     }
+  }
 ?>
 
 <!DOCTYPE html>
@@ -30,8 +47,8 @@ if(isset($_POST['submit'])){
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom fonts for this template -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab:100,300,400,600,700,100italic,300italic,400italic,600italic,700italic" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&amp;subset=cyrillic-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:100,300,400,700&amp;subset=cyrillic-ext" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/business-casual.css" rel="stylesheet">
@@ -64,7 +81,7 @@ if(isset($_POST['submit'])){
               <a class="nav-link text-uppercase text-expanded" href="blog.html">Блог</a>
             </li>-->
             <li class="nav-item active px-lg-4">
-              <a class="nav-link text-uppercase text-expanded" href="contact.html">Контакты</a>
+              <a class="nav-link text-uppercase text-expanded" href="contact.php">Контакты</a>
             </li>
           </ul>
         </div>
@@ -91,7 +108,7 @@ if(isset($_POST['submit'])){
               <a href="tel:87777977107">8 (777) 797 71 07</a></div>
             <h5 class="mb-0">Email:</h5>
             <div class="mb-4">
-              <a href="mailto:name@example.com">info@kazng.com</a>
+              <a href="mailto:info@kazng.com">info@kazng.com</a>
             </div>
             <h5 class="mb-0">Адрес:</h5>
             <div class="mb-4">
@@ -108,7 +125,7 @@ if(isset($_POST['submit'])){
         <h2 class="text-center text-lg text-uppercase my-0">Оставить заявку
         </h2>
         <hr class="divider">
-        <form id="submit-form">
+        <form id="submit-form" method="post" action="/contact.php">
           <div class="row">
             <div class="form-group col-lg-4">
               <label class="text-heading">Имя</label>
@@ -128,6 +145,9 @@ if(isset($_POST['submit'])){
               <textarea class="form-control" rows="6" name="message"></textarea>
             </div>
             <div class="form-group col-lg-12">
+              <!--<button class="btn btn-secondary" type=submit>
+                Отправить
+              </button>-->
               <button
 class="btn btn-secondary g-recaptcha"
 data-sitekey="6LdNATwUAAAAAFDmU1Om0adeRcDlUB6t08Va9V-i"
@@ -158,7 +178,16 @@ data-callback="submitForm">
         document.getElementById("submit-form").submit();
       }
       (function() {
-         
+         <?php 
+          if(isset($_POST['email']) && $captcha){
+            echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'")';
+            ?>
+            alert("Спасибо, Ваша заявка принята!");
+            <?php
+          }else{
+            echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'")';
+          }
+        ?>  
       })();
       $('.map-container').click(function () {
         $(this).find('iframe').addClass('clicked')
