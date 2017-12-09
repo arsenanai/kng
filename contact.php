@@ -31,9 +31,11 @@
       $message = $first_name . ", тел: " .$phone. ", оставил заявку:" . "\n\n" . $_POST['message'];
       $message2 = "Спасибо за Вашу заявку, " . $first_name . ", мы ответим Вам в ближайщее время\n\n";
       $headers = 'From:' . $from . "\r\n" .
+      'Reply-To: ' . $to . "\r\n" .
+      'X-Mailer: PHP/' . phpversion();
+      $headers2 = 'From:' . $to . "\r\n" .
       'Reply-To: ' . $from . "\r\n" .
       'X-Mailer: PHP/' . phpversion();
-      $headers2 = "От:" . $to;
       $delivery = mail($to,$subject,$message,$headers);
       $delivery2= mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender
     }
@@ -67,7 +69,7 @@
   <body>
 
     <div class="tagline-upper text-center text-heading text-shadow text-white mt-5 d-none d-lg-block">Kaz National Group</div>
-    <div class="tagline-lower text-center text-expanded text-shadow text-uppercase text-white mb-5 d-none d-lg-block">Казахстан, г.Астана, Г. Мустафина 15 | 8(701)9876485</div>
+    <div class="tagline-lower text-center text-expanded text-shadow text-uppercase text-white mb-5 d-none d-lg-block">Казахстан, г.Астана, Г. Мустафина 15 | 8(701)3900764</div>
 
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-faded py-lg-4">
@@ -113,7 +115,7 @@
           </div>
           <div class="col-lg-4">
             <h5 class="mb-0">Телефон:</h5>
-            <div class="mb-4"><a href="tel:87019876485">8 (701) 987 64 85</a><br>
+            <div class="mb-4"><a href="tel:87013900764">8 (701) 390 07 64</a><br>
               <a href="tel:87777977107">8 (777) 797 71 07</a></div>
             <h5 class="mb-0">Email:</h5>
             <div class="mb-4">
