@@ -1,47 +1,3 @@
-<?php 
-  $delivery=false;
-  $delivery2=false;
-  $captcha=false;
-  if(isset($_POST['email'])){
-    $post_data = http_build_query(
-        array(
-            'secret' => '6LdNATwUAAAAAGDb_24wJmeAkwPzA_KJbvF7C0Ka',
-            'response' => $_POST['g-recaptcha-response'],
-            'remoteip' => $_SERVER['REMOTE_ADDR']
-        )
-    );
-    $opts = array('http' =>
-        array(
-            'method'  => 'POST',
-            'header'  => 'Content-type: application/x-www-form-urlencoded',
-            'content' => $post_data
-        )
-    );
-    $context  = stream_context_create($opts);
-    $response = file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
-    $result = json_decode($response);
-    if ($result->success===true) {
-      $captcha=true;
-      $to = "info@kazng.com"; // this is your Email address
-      $from = $_POST['email']; // this is the sender's Email address
-      $first_name = $_POST['name'];
-      $phone = $_POST['phone'];
-      $subject = "Обратная связь с сайта";
-      $subject2= "Спасибо за обращение";
-      $message = $first_name . ", тел: " .$phone. ", оставил заявку:" . "\n\n" . $_POST['message'];
-      $message2 = "Спасибо за Вашу заявку, " . $first_name . ", мы ответим Вам в ближайщее время\n\n";
-      $headers = 'From:' . $from . "\r\n" .
-      'Reply-To: ' . $to . "\r\n" .
-      'X-Mailer: PHP/' . phpversion();
-      $headers2 = 'From:' . $to . "\r\n" .
-      'Reply-To: ' . $from . "\r\n" .
-      'X-Mailer: PHP/' . phpversion();
-      $delivery = mail($to,$subject,$message,$headers);
-      $delivery2= mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender
-    }
-  }
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -64,7 +20,6 @@
 
     <!-- Custom styles for this template -->
     <link href="css/business-casual.css" rel="stylesheet">
-    <script src='https://www.google.com/recaptcha/api.js'></script>
   </head>
 
   <body>
@@ -137,7 +92,7 @@
         <h2 class="text-center text-lg text-uppercase my-0">Оставить заявку
         </h2>
         <hr class="divider">
-        <form id="submit-form" method="post" action="/contact.html">
+        <form id="submit-form" method="post" action="#">
           <div class="row">
             <div class="form-group col-lg-4">
               <label class="text-heading">Имя</label>
@@ -187,27 +142,7 @@ data-callback="submitForm">
 
     <!-- Zoom when clicked function for Google Map -->
     <script>
-      function submitForm(){
-        document.getElementById("submit-form").submit();
-      }
-      (function() {
-         <?php 
-          if(isset($_POST['email']) && $captcha===true){
-            echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'");'."\n";
-            ?>
-            alert("Спасибо, Ваша заявка принята!");
-            <?php
-          }
-          if(!isset($_POST['email']) || $captcha===false){
-            echo 'console.log("delivery1: '.$delivery.', delivery2: '.$delivery2.', captcha: '.$captcha.'")';
-          }
-        ?>  
-      })();
-      $('.map-container').click(function () {
-        $(this).find('iframe').addClass('clicked')
-      }).mouseleave(function () {
-        $(this).find('iframe').removeClass('clicked')
-      });
+      
     </script>
 
   </body>
